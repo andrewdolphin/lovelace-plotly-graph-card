@@ -52,13 +52,13 @@ Plotly.register([
   require("plotly.js/lib/barpolar"),
 
   // transforms
-  require("plotly.js/lib/aggregate"),
-  require("plotly.js/lib/filter"),
-  require("plotly.js/lib/groupby"),
-  require("plotly.js/lib/sort"),
+  require("plotly.js/src/transforms/aggregate"),
+  require("plotly.js/src/transforms/filter"),
+  require("plotly.js/src/transforms/groupby"),
+  require("plotly.js/src/transforms/sort"),
 
   // components
-  require("plotly.js/lib/calendars"),
+  require("plotly.js/src/components/calendars"),
 
   // locales
   require("plotly.js/lib/locales/af.js"),
