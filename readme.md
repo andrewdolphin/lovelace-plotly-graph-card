@@ -1,3 +1,12 @@
+This is a fork of the HACS published custom card built by dbuezas. The readme below is copied from that repository unchanged. The "Buy Me A Coffee" link goes to his link as this remains mostly his body of work.
+
+Changes made here include:
+
+1. Updating plotly to the lastest version
+2. Removing pointcloud and heatmapgl graph types as these have been deprecated by plotly. New graph types are available in the latest plotly but these have not been implemented here
+3. Implement the PR made here (https://github.com/dbuezas/lovelace-plotly-graph-card/pull/597) to implement async filters.
+
+
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/dbuezas)
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
