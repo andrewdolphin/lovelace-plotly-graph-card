@@ -56,7 +56,7 @@ Plotly.register([
   require("plotly.js/src/transforms/sort"),
 
   // components
-  require("plotly.js/src/components/calendars"),
+  require("plotly.js/lib/calendars"),
 
   // locales
   require("plotly.js/lib/locales/af.js"),
