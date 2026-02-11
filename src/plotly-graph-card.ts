@@ -77,7 +77,7 @@ export class PlotlyGraph extends HTMLElement {
               direction: ltr;
             }
             ha-card > #plotly{
-              width: 100px;
+              width: 100%;
             }
             ha-card > #title{
               text-align: center;
