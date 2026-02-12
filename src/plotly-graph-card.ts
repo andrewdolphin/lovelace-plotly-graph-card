@@ -15,7 +15,6 @@ import isProduction from "./is-production";
 import "./hot-reload";
 import { debounce, sleep } from "./utils";
 import { parseISO } from "date-fns";
-import { TouchController } from "./touch-controller";
 import { ConfigParser } from "./parse-config/parse-config";
 import { merge } from "lodash";
 
@@ -42,7 +41,6 @@ export class PlotlyGraph extends HTMLElement {
   _hass?: HomeAssistant;
   isBrowsing = false;
   isInternalRelayout = 0;
-  touchController: TouchController;
   configParser = new ConfigParser();
   pausedRendering = false;
   handles: {
@@ -127,16 +125,6 @@ export class PlotlyGraph extends HTMLElement {
     this.titleEl = shadow.querySelector("ha-card > #title")!;
     insertStyleHack(shadow.querySelector("style")!);
     this.contentEl.style.visibility = "hidden";
-    this.touchController = new TouchController({
-      el: this.contentEl,
-      onZoomStart: () => {
-        this.pausedRendering = true;
-      },
-      onZoomEnd: () => {
-        this.pausedRendering = false;
-        this.plot({ should_fetch: true });
-      },
-    });
     this.withoutRelayout(() => Plotly.newPlot(this.contentEl, [], {}));
   }
 
@@ -190,7 +178,6 @@ export class PlotlyGraph extends HTMLElement {
       this.onButtonClick
     )!;
     this.resetButtonEl.addEventListener("click", this.exitBrowsingMode);
-    this.touchController.connect();
     this.plot({ should_fetch: true });
   }
 
@@ -212,7 +199,6 @@ export class PlotlyGraph extends HTMLElement {
     this.handles.buttonClick?.off("plotly_buttonclicked", this.onButtonClick);
     clearTimeout(this.handles.refreshTimeout!);
     this.resetButtonEl.removeEventListener("click", this.exitBrowsingMode);
-    this.touchController.disconnect();
   }
 
   get hass() {
