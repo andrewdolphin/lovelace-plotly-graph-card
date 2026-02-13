@@ -114,6 +114,11 @@ export class PlotlyGraph extends HTMLElement {
             #error-msg a{
               color: mediumturquoise;
             }
+            .nsewdrag {
+              /* This ensures the layer is ready for clicks but doesn't 
+              block the browser's touch-action defaults */
+              touch-action: none; 
+            }
           </style>
           <div id="title"> </div>
           <div id="plotly"> </div>
