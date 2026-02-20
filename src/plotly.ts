@@ -33,6 +33,7 @@ Plotly.register([
   require("plotly.js/lib/cone"),
   require("plotly.js/lib/streamtube"),
   require("plotly.js/lib/scattergeo"),
+  require("plotly.js/lib/scattermap"),
   require("plotly.js/lib/choropleth"),
   require("plotly.js/lib/parcats"),
   // require("plotly.js/lib/scattermapbox"),
