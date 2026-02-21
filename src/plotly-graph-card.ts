@@ -1,5 +1,4 @@
 import { HomeAssistant } from "custom-card-helpers";
-import EventEmitter from "events";
 import mapValues from "lodash/mapValues";
 import { version } from "../package.json";
 import insertStyleHack from "./style-hack";
@@ -15,7 +14,6 @@ import isProduction from "./is-production";
 import "./hot-reload";
 import { debounce, sleep } from "./utils";
 import { parseISO } from "date-fns";
-import { TouchController } from "./touch-controller";
 import { ConfigParser } from "./parse-config/parse-config";
 import { merge } from "lodash";
 
@@ -42,21 +40,8 @@ export class PlotlyGraph extends HTMLElement {
   _hass?: HomeAssistant;
   isBrowsing = false;
   isInternalRelayout = 0;
-  touchController: TouchController;
   configParser = new ConfigParser();
   pausedRendering = false;
-  handles: {
-    resizeObserver?: ResizeObserver;
-    relayoutListener?: EventEmitter;
-    restyleListener?: EventEmitter;
-    refreshTimeout?: number;
-    legendItemClick?: EventEmitter;
-    legendItemDoubleclick?: EventEmitter;
-    dataClick?: EventEmitter;
-    doubleclick?: EventEmitter;
-    annotationClick?: EventEmitter;
-    buttonClick?: EventEmitter;
-  } = {};
 
   constructor() {
     super();
@@ -132,16 +117,6 @@ export class PlotlyGraph extends HTMLElement {
     this.titleEl = shadow.querySelector("ha-card > #title")!;
     insertStyleHack(shadow.querySelector("style")!);
     this.contentEl.style.visibility = "hidden";
-    this.touchController = new TouchController({
-      el: this.contentEl,
-      onZoomStart: () => {
-        this.pausedRendering = true;
-      },
-      onZoomEnd: () => {
-        this.pausedRendering = false;
-        this.plot({ should_fetch: true });
-      },
-    });
     this.withoutRelayout(() => Plotly.newPlot(this.contentEl, [], {}));
   }
 
@@ -173,29 +148,7 @@ export class PlotlyGraph extends HTMLElement {
       "plotly_restyle",
       this.onRestyle
     )!;
-    this.handles.legendItemClick = this.contentEl.on(
-      "plotly_legendclick",
-      this.onLegendItemClick
-    )!;
-    this.handles.legendItemDoubleclick = this.contentEl.on(
-      "plotly_legenddoubleclick",
-      this.onLegendItemDoubleclick
-    )!;
-    this.handles.doubleclick = this.contentEl.on(
-      "plotly_doubleclick",
-      this.onDoubleclick
-    )!;
-    this.handles.annotationClick = this.contentEl.on(
-      "plotly_clickannotation",
-      this.onAnnotationClick
-    )!;
-    this.handles.buttonClick = this.contentEl.on(
-      // @ts-ignore Not properly typed in @types/plotly.js
-      "plotly_buttonclicked",
-      this.onButtonClick
-    )!;
     this.resetButtonEl.addEventListener("click", this.exitBrowsingMode);
-    this.touchController.connect();
     this.plot({ should_fetch: true });
   }
 
@@ -203,21 +156,8 @@ export class PlotlyGraph extends HTMLElement {
     this.handles.resizeObserver?.disconnect();
     this.handles.relayoutListener?.off("plotly_relayout", this.onRelayout);
     this.handles.restyleListener?.off("plotly_restyle", this.onRestyle);
-    this.handles.legendItemClick?.off(
-      "plotly_legendclick",
-      this.onLegendItemClick
-    );
-    this.handles.legendItemDoubleclick?.off(
-      "plotly_legenddoubleclick",
-      this.onLegendItemDoubleclick
-    );
-    this.handles.dataClick?.off("plotly_click", this.onDataClick);
-    this.handles.doubleclick?.off("plotly_doubleclick", this.onDoubleclick);
-    this.handles.annotationClick?.off("plotly_clickannotation", this.onAnnotationClick);
-    this.handles.buttonClick?.off("plotly_buttonclicked", this.onButtonClick);
     clearTimeout(this.handles.refreshTimeout!);
     this.resetButtonEl.removeEventListener("click", this.exitBrowsingMode);
-    this.touchController.disconnect();
   }
 
   get hass() {
@@ -305,39 +245,6 @@ export class PlotlyGraph extends HTMLElement {
       this.configParser.resetObservedRange();
       await this.plot({ should_fetch: true });
     });
-  };
-  onLegendItemClick = ({ curveNumber, ...rest }) => {
-    return this.parsed_config.entities[curveNumber].on_legend_click({
-      curveNumber,
-      ...rest,
-    });
-  };
-  onLegendItemDoubleclick = ({ curveNumber, ...rest }) => {
-    return this.parsed_config.entities[curveNumber].on_legend_dblclick({
-      curveNumber,
-      ...rest,
-    });
-  };
-  onDataClick = ({ points, ...rest }) => {
-    return this.parsed_config.entities[points[0].curveNumber].on_click({
-      points,
-      ...rest,
-    });
-  };
-  onDoubleclick = () => {
-    return this.parsed_config.on_dblclick();
-  };
-  onAnnotationClick = ({ annotation, ...rest }) => {
-    if (annotation.on_click) {
-        return annotation.on_click({ annotation, ...rest });
-    }
-    return true;
-  };
-  onButtonClick = ({ button, ...rest }) => {
-    if (button._input.on_click) {
-        return button._input.on_click({ button, ...rest });
-    }
-    return true;
   };
   onRestyle = async () => {
     // trace visibility changed, fetch missing traces
@@ -448,11 +355,6 @@ export class PlotlyGraph extends HTMLElement {
       }
       this.contentEl.style.visibility = "";
     });
-    this.handles.dataClick?.off("plotly_click", this.onDataClick)!;
-    this.handles.dataClick = this.contentEl.on(
-      "plotly_click",
-      this.onDataClick
-    )!;
   });
   // The height of your card. Home Assistant uses this to automatically
   // distribute all cards over the available columns.
