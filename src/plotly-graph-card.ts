@@ -1,4 +1,4 @@
-import { HomeAssistant } from "custom-card-helpers";
+import { LitElement, html, css } from "lit-element";
 import mapValues from "lodash/mapValues";
 import { version } from "../package.json";
 import insertStyleHack from "./style-hack";
@@ -25,7 +25,7 @@ console.info(
   "color: white; font-weight: bold; background: dimgray"
 );
 
-export class PlotlyGraph extends HTMLElement {
+export class PlotlyGraph extends LitElement {
   contentEl: Plotly.PlotlyHTMLElement & {
     data: (Plotly.PlotData & { entity: string })[];
     layout: Plotly.Layout;
