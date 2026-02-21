@@ -42,6 +42,12 @@ export class PlotlyGraph extends HTMLElement {
   isInternalRelayout = 0;
   configParser = new ConfigParser();
   pausedRendering = false;
+  handles: {
+    resizeObserver?: ResizeObserver;
+    relayoutListener?: EventEmitter;
+    restyleListener?: EventEmitter;
+    refreshTimeout?: number;
+  } = {};
 
   constructor() {
     super();
