@@ -44,8 +44,6 @@ export class PlotlyGraph extends LitElement {
   pausedRendering = false;
   handles: {
     resizeObserver?: ResizeObserver;
-    relayoutListener?: EventEmitter;
-    restyleListener?: EventEmitter;
     refreshTimeout?: number;
   } = {};
 
@@ -146,22 +144,14 @@ export class PlotlyGraph extends LitElement {
     this.handles.resizeObserver.observe(this.cardEl);
 
     updateCardSize();
-    this.handles.relayoutListener = this.contentEl.on(
-      "plotly_relayout",
-      this.onRelayout
-    )!;
-    this.handles.restyleListener = this.contentEl.on(
-      "plotly_restyle",
-      this.onRestyle
-    )!;
+    
     this.resetButtonEl.addEventListener("click", this.exitBrowsingMode);
     this.plot({ should_fetch: true });
   }
 
   disconnectedCallback() {
     this.handles.resizeObserver?.disconnect();
-    this.handles.relayoutListener?.off("plotly_relayout", this.onRelayout);
-    this.handles.restyleListener?.off("plotly_restyle", this.onRestyle);
+   
     clearTimeout(this.handles.refreshTimeout!);
     this.resetButtonEl.removeEventListener("click", this.exitBrowsingMode);
   }
@@ -252,19 +242,7 @@ export class PlotlyGraph extends LitElement {
       await this.plot({ should_fetch: true });
     });
   };
-  onRestyle = async () => {
-    // trace visibility changed, fetch missing traces
-    if (this.isInternalRelayout) return;
-    this.enterBrowsingMode();
-    await this.plot({ should_fetch: true });
-  };
-  onRelayout = async () => {
-    // user panned/zoomed
-    if (this.isInternalRelayout) return;
-    this.enterBrowsingMode();
-    await this.plot({ should_fetch: true });
-  };
-
+  
   // The user supplied configuration. Throw an exception and Lovelace will
   // render an error card.
   async setConfig(config: InputConfig) {
