@@ -6,7 +6,6 @@
   "scripts": {
     "start": "(node ./script/hot-reload.mjs & esbuild src/plotly-graph-card.ts --servedir=dist --outdir=dist --bundle --sourcemap=inline)",
     "build": "esbuild src/plotly-graph-card.ts --outdir=dist --bundle",
-    "help-postinstall": "esbuild src/plotly-graph-card.ts --outdir=dist --bundle --minify",
     "tsc": "tsc",
     "test": "jest",
     "test:watch": "jest --watchAll",
