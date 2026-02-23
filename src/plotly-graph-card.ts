@@ -271,7 +271,6 @@ export class PlotlyGraph extends LitElement {
     const was = this.config;
     this.config = config;
     const is = this.config;
-    this.touchController.isEnabled = !is.disable_pinch_to_zoom;
     this.exitBrowsingMode();
   }
   getCSSVars() {
@@ -293,41 +292,6 @@ export class PlotlyGraph extends LitElement {
     if (should_fetch) this.fetchScheduled = true;
     await this._plot(delay);
   };
-  _plot = debounce(async () => {
-    if (this.pausedRendering) return;
-    const should_fetch = this.fetchScheduled;
-    this.fetchScheduled = false;
-    let i = 0;
-    while (!(this.config && this.hass && this.isConnected)) {
-      if (i++ > 50) throw new Error("Card didn't load");
-      console.log("waiting for loading");
-      await sleep(100);
-    }
-    const fetch_mask = this.contentEl.data.map(
-      ({ visible }) => should_fetch && visible !== "legendonly"
-    );
-    const uirevision = this.isBrowsing
-      ? this.contentEl.layout?.uirevision || 0
-      : Math.random();
-    const yaml = merge(
-      {},
-      this.config,
-      {
-        layout: {
-          ...this.size,
-          ...{ uirevision },
-        },
-        fetch_mask,
-      },
-      this.isBrowsing ? { visible_range: this.getVisibleRange() } : {},
-
-      this.config
-    );
-    const { errors, parsed } = await this.configParser.update({
-      yaml,
-      hass: this.hass,
-      css_vars: this.getCSSVars(),
-    });
     this.errorMsgEl.style.display = errors.length ? "block" : "none";
     this.errorMsgEl.innerHTML = errors
       .map((e) => "<span>" + (e || "See devtools console") + "</span>")
