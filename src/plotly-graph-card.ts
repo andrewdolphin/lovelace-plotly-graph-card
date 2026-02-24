@@ -112,7 +112,7 @@ export class PlotlyGraph extends LitElement {
           <div id="title"> </div>
           <div id="plotly"> </div>
           <span id="error-msg"> </span>
-          <button id="reset" class="hidden">↻</button>
+          <button id="reset">↻</button>
         </ha-card>`;
     this.errorMsgEl = shadow.querySelector("#error-msg")!;
     this.cardEl = shadow.querySelector("ha-card")!;
@@ -232,11 +232,9 @@ export class PlotlyGraph extends LitElement {
   }
   enterBrowsingMode = () => {
     this.isBrowsing = true;
-    this.resetButtonEl.classList.remove("hidden");
   };
   exitBrowsingMode = async () => {
     this.isBrowsing = false;
-    this.resetButtonEl.classList.add("hidden");
     this.withoutRelayout(async () => {
       this.configParser.resetObservedRange();
       await this.plot({ should_fetch: true });
